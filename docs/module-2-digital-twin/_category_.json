@@ -1,0 +1,8 @@
+{
+  "label": "Module 2: The Digital Twin (Gazebo & Unity)",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn how to create virtual replicas of humanoid robots using physics simulation in Gazebo and high-fidelity visualization in Unity."
+  }
+}

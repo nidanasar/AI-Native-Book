@@ -1,0 +1,138 @@
+# Depth Camera (RGB-D) Configuration for Humanoid Robots
+# This YAML file documents typical depth camera parameters for Gazebo simulation
+#
+# Common real-world equivalents:
+# - Intel RealSense D435/D455
+# - Microsoft Azure Kinect
+# - Stereolabs ZED
+#
+# Usage: Reference these values when configuring your URDF/SDF depth camera
+
+# Sensor identification
+sensor:
+  name: "rgbd_camera"
+  type: "rgbd_camera"         # Provides both RGB and Depth
+  parent_link: "head_link"
+
+# Position relative to parent link
+pose:
+  x: 0.05       # 5cm forward (typical for head-mounted)
+  y: 0.0        # Centered
+  z: 0.0        # At link origin height
+  roll: 0.0
+  pitch: 0.0    # Slight downward tilt common: -0.1 to -0.2 rad
+  yaw: 0.0
+
+# Camera intrinsics
+camera:
+  # Field of view
+  horizontal_fov: 1.047       # ~60 degrees (radians)
+  # Common FOV values:
+  # - Intel RealSense D435: 87° H x 58° V
+  # - Azure Kinect: 120° H x 120° V (wide)
+  # - Typical simulation: 60° - 90°
+
+  # Image resolution
+  image:
+    width: 640                # Pixels
+    height: 480               # Pixels
+    format: "R8G8B8"          # 8-bit RGB
+    # Common resolutions:
+    # - Low: 320x240 (faster, less detail)
+    # - Medium: 640x480 (balanced)
+    # - High: 1280x720 or 1920x1080 (detailed, slower)
+
+  # Clipping planes (what the camera can "see")
+  clip:
+    near: 0.1                 # Minimum distance (meters)
+    far: 10.0                 # Maximum distance (meters)
+    # Real-world typical ranges:
+    # - Intel RealSense: 0.1m - 10m
+    # - Azure Kinect: 0.25m - 5.46m (narrow) or 0.25m - 2.88m (wide)
+
+  # Depth-specific settings
+  depth_camera:
+    clip:
+      near: 0.1
+      far: 10.0
+    # Depth image format is typically float32 (meters)
+
+  # Noise model
+  noise:
+    type: "gaussian"
+    mean: 0.0
+    stddev: 0.007             # ~7mm depth noise
+    # Real-world depth noise varies with distance:
+    # - Close range (0.5m): ~1-2mm
+    # - Mid range (2m): ~5-10mm
+    # - Far range (5m): ~15-30mm
+
+# Update rate
+update_rate: 30               # Hz (frames per second)
+# Common values:
+# - Manipulation: 15-30 Hz
+# - Real-time tracking: 30-60 Hz
+# - High-speed: 60-90 Hz (limited by sensor)
+
+# Gazebo-specific settings
+gazebo:
+  always_on: true
+  visualize: true
+  topic: "camera"             # Base topic name
+
+# Output topics (Gazebo transport)
+topics:
+  color_image: "camera/image"
+  depth_image: "camera/depth"
+  point_cloud: "camera/points"
+  camera_info: "camera/camera_info"
+
+# ROS 2 bridge configuration
+ros2_bridge:
+  # Bridge multiple topics for full RGB-D support
+  arguments:
+    - "/camera/image@sensor_msgs/msg/Image[gz.msgs.Image"
+    - "/camera/depth@sensor_msgs/msg/Image[gz.msgs.Image"
+    - "/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked"
+    - "/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo"
+
+# Example use cases for humanoid robots
+use_cases:
+  manipulation:
+    description: "Object detection and grasping"
+    recommended_resolution: "640x480"
+    recommended_update_rate: 30
+    key_features:
+      - "Point cloud for object localization"
+      - "RGB for object recognition"
+
+  navigation:
+    description: "Obstacle detection and terrain analysis"
+    recommended_fov: 90       # degrees - wider is better
+    recommended_range_max: 5.0
+    key_features:
+      - "Depth for obstacle distance"
+      - "Point cloud for 3D mapping"
+
+  human_interaction:
+    description: "Person detection and tracking"
+    recommended_resolution: "1280x720"
+    recommended_update_rate: 30
+    key_features:
+      - "RGB for face/pose detection"
+      - "Depth for person localization"
+
+# Advanced: Simulating common camera artifacts
+# (Not all supported in basic Gazebo, shown for reference)
+artifacts:
+  motion_blur:
+    enabled: false            # Gazebo doesn't simulate by default
+    # Consider post-processing in custom plugin
+
+  lens_distortion:
+    enabled: false            # Can be added via custom plugin
+    # Real cameras have barrel/pincushion distortion
+
+  exposure_variation:
+    enabled: false            # Brightness changes with scene
+    # Important for outdoor/varying light conditions

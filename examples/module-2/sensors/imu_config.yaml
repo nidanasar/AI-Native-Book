@@ -1,0 +1,205 @@
+# IMU (Inertial Measurement Unit) Configuration for Humanoid Robots
+# This YAML file documents typical IMU parameters for Gazebo simulation
+#
+# An IMU measures:
+# - Linear acceleration (accelerometer)
+# - Angular velocity (gyroscope)
+# - Optionally: magnetic field (magnetometer)
+#
+# Critical for: balance control, state estimation, fall detection
+
+# Sensor identification
+sensor:
+  name: "imu_sensor"
+  type: "imu"
+  parent_link: "base_link"    # Usually mounted on torso/pelvis
+
+# Position relative to parent link
+# IMU should be at or near the robot's center of mass
+pose:
+  x: 0.0
+  y: 0.0
+  z: 0.0                      # At link origin
+  roll: 0.0
+  pitch: 0.0
+  yaw: 0.0
+
+# Angular velocity (gyroscope) configuration
+angular_velocity:
+  # Per-axis noise configuration
+  x:
+    noise:
+      type: "gaussian"
+      mean: 0.0
+      stddev: 0.0002          # rad/s
+  y:
+    noise:
+      type: "gaussian"
+      mean: 0.0
+      stddev: 0.0002
+  z:
+    noise:
+      type: "gaussian"
+      mean: 0.0
+      stddev: 0.0002
+
+  # Typical real-world gyro specifications:
+  # - MEMS IMU (consumer): 0.001 - 0.01 rad/s noise
+  # - MEMS IMU (tactical): 0.0001 - 0.001 rad/s noise
+  # - Fiber optic gyro: 0.00001 rad/s noise (expensive)
+
+# Linear acceleration (accelerometer) configuration
+linear_acceleration:
+  x:
+    noise:
+      type: "gaussian"
+      mean: 0.0
+      stddev: 0.017           # m/s²
+  y:
+    noise:
+      type: "gaussian"
+      mean: 0.0
+      stddev: 0.017
+  z:
+    noise:
+      type: "gaussian"
+      mean: 0.0
+      stddev: 0.017
+
+  # Typical real-world accelerometer specifications:
+  # - MEMS IMU (consumer): 0.01 - 0.1 m/s² noise
+  # - MEMS IMU (tactical): 0.001 - 0.01 m/s² noise
+  # - Navigation grade: 0.0001 m/s² (very expensive)
+
+# Update rate - CRITICAL for humanoid balance
+update_rate: 200              # Hz
+# Recommendations:
+# - Minimum for balance: 100 Hz
+# - Typical for humanoids: 200-400 Hz
+# - High-performance: 400-1000 Hz
+
+# Gazebo-specific settings
+gazebo:
+  always_on: true
+  visualize: false            # IMU has no visual representation
+  topic: "imu"
+
+# ROS 2 bridge configuration
+ros2_bridge:
+  topic: "/imu"
+  message_type: "sensor_msgs/msg/Imu"
+  # Bridge command:
+  # ros2 run ros_gz_bridge parameter_bridge /imu@sensor_msgs/msg/Imu[gz.msgs.IMU
+
+# ROS 2 message structure (sensor_msgs/msg/Imu)
+message_contents:
+  header:
+    stamp: "timestamp"
+    frame_id: "imu_link"
+
+  orientation:
+    description: "Quaternion (x, y, z, w)"
+    units: "dimensionless"
+    notes: "May be identity if IMU doesn't fuse to orientation"
+
+  orientation_covariance:
+    description: "3x3 covariance matrix (row-major)"
+    notes: "Set to -1 if orientation not provided"
+
+  angular_velocity:
+    description: "Angular velocity vector (x, y, z)"
+    units: "rad/s"
+
+  angular_velocity_covariance:
+    description: "3x3 covariance matrix"
+
+  linear_acceleration:
+    description: "Linear acceleration vector (x, y, z)"
+    units: "m/s²"
+    notes: "Includes gravity! (~9.81 m/s² in Z when stationary)"
+
+  linear_acceleration_covariance:
+    description: "3x3 covariance matrix"
+
+# Advanced noise characteristics (for realistic simulation)
+advanced_noise:
+  # Bias - constant offset that drifts slowly over time
+  gyro_bias:
+    initial: [0.0, 0.0, 0.0]  # rad/s
+    random_walk: 0.00001      # rad/s per sqrt(s)
+    # Real IMUs have bias that drifts over hours
+
+  accel_bias:
+    initial: [0.0, 0.0, 0.0]  # m/s²
+    random_walk: 0.0001       # m/s² per sqrt(s)
+
+  # Scale factor error
+  gyro_scale_factor: 1.0      # 1.0 = perfect, real ~0.999-1.001
+  accel_scale_factor: 1.0
+
+  # Cross-axis sensitivity (coupling between axes)
+  # Real IMUs have ~1-2% cross-axis sensitivity
+  cross_axis: 0.0             # 0 = perfect, 0.01 = 1%
+
+# Use cases for humanoid robots
+use_cases:
+  balance_control:
+    description: "Real-time balance feedback for walking"
+    critical_params:
+      - "High update rate (200+ Hz)"
+      - "Low latency"
+      - "Accurate orientation estimate"
+    typical_integration:
+      - "Complementary filter with joint encoders"
+      - "Extended Kalman Filter (EKF)"
+
+  fall_detection:
+    description: "Detect falling and trigger protective actions"
+    key_signals:
+      - "Sudden change in linear acceleration"
+      - "Angular velocity exceeding threshold"
+    typical_thresholds:
+      angular_velocity: 2.0   # rad/s
+      acceleration_deviation: 5.0  # m/s² from gravity
+
+  state_estimation:
+    description: "Estimate robot pose and velocity"
+    fusion_with:
+      - "Joint encoders (proprioception)"
+      - "Foot contact sensors"
+      - "Visual odometry"
+    common_algorithms:
+      - "Extended Kalman Filter (EKF)"
+      - "Unscented Kalman Filter (UKF)"
+      - "Factor graph optimization"
+
+# Example: Processing IMU data in Python
+example_code: |
+  import rclpy
+  from sensor_msgs.msg import Imu
+  import math
+
+  def imu_callback(msg):
+      # Extract orientation as quaternion
+      q = msg.orientation
+
+      # Convert to Euler angles (roll, pitch, yaw)
+      # Note: This is simplified - use tf_transformations for robust conversion
+      siny_cosp = 2 * (q.w * q.z + q.x * q.y)
+      cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
+      yaw = math.atan2(siny_cosp, cosy_cosp)
+
+      sinp = 2 * (q.w * q.y - q.z * q.x)
+      pitch = math.asin(sinp) if abs(sinp) < 1 else math.copysign(math.pi/2, sinp)
+
+      sinr_cosp = 2 * (q.w * q.x + q.y * q.z)
+      cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y)
+      roll = math.atan2(sinr_cosp, cosr_cosp)
+
+      # Check for tilt
+      if abs(pitch) > 0.1 or abs(roll) > 0.1:
+          print(f"Warning: Robot tilting! Roll: {roll:.2f}, Pitch: {pitch:.2f}")
+
+      # Angular velocity for rate feedback
+      omega = msg.angular_velocity
+      print(f"Angular velocity: x={omega.x:.3f}, y={omega.y:.3f}, z={omega.z:.3f}")

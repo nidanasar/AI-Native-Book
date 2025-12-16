@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<!--
+Simple Humanoid URDF Example
+==============================
+
+This URDF (Unified Robot Description Format) defines a simplified humanoid
+robot structure. Think of this as the "skeleton" that the nervous system
+(ROS 2) controls.
+
+The Nervous System Analogy:
+- Links = Bones (rigid body segments)
+- Joints = Articulation points (where movement happens)
+- URDF = Anatomical blueprint that ROS 2 uses to understand the robot
+
+This simplified model includes:
+- Torso (base_link) - The robot's core/trunk
+- Head - Connected to torso via neck joint
+- Left Arm - Shoulder + elbow (2 DOF)
+- Right Arm - Shoulder + elbow (2 DOF)
+
+Total: 6 joints (6 degrees of freedom)
+
+Note: This is a pedagogical model. Production humanoids have 20-50+ joints.
+
+Usage with ROS 2:
+    ros2 launch robot_state_publisher robot_state_publisher.launch.py \
+        urdf_file:=simple_humanoid.urdf
+
+View in RViz:
+    ros2 run rviz2 rviz2
+
+Author: AI-Native Textbook Project
+License: Apache 2.0
+-->
+<robot name="simple_humanoid">
+
+  <!-- ==================== MATERIALS ==================== -->
+  <!-- Define colors for visualization -->
+
+  <material name="blue">
+    <color rgba="0.2 0.4 0.8 1.0"/>
+  </material>
+
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+
+  <material name="orange">
+    <color rgba="0.9 0.5 0.2 1.0"/>
+  </material>
+
+  <!-- ==================== BASE LINK (TORSO) ==================== -->
+  <!--
+    The base_link is the robot's reference frame - all other links
+    are defined relative to this. In our nervous system analogy,
+    this is like the spinal column - the central structure.
+  -->
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.3 0.2 0.5"/>  <!-- width, depth, height -->
+      </geometry>
+      <origin xyz="0 0 0.25" rpy="0 0 0"/>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.3 0.2 0.5"/>
+      </geometry>
+      <origin xyz="0 0 0.25" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="5.0"/>
+      <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.05"/>
+    </inertial>
+  </link>
+
+  <!-- ==================== HEAD ==================== -->
+  <!--
+    The head link represents the robot's head.
+    Connected to torso via a revolute (rotating) neck joint.
+  -->
+
+  <link name="head">
+    <visual>
+      <geometry>
+        <sphere radius="0.1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.004" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.004"/>
+    </inertial>
+  </link>
+
+  <!-- Neck Joint: Allows head rotation (yaw) -->
+  <joint name="neck_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="head"/>
+    <origin xyz="0 0 0.55" rpy="0 0 0"/>  <!-- Top of torso -->
+    <axis xyz="0 0 1"/>  <!-- Rotation around Z axis (turning head left/right) -->
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- ==================== LEFT ARM ==================== -->
+  <!--
+    The left arm consists of:
+    - Upper arm (connected to torso via shoulder)
+    - Lower arm/forearm (connected to upper arm via elbow)
+
+    In nervous system terms, these are the "effectors" that
+    the motor neurons control.
+  -->
+
+  <!-- Left Upper Arm -->
+  <link name="left_upper_arm">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.25"/>
+      </geometry>
+      <origin xyz="0 0 -0.125" rpy="0 0 0"/>  <!-- Center the cylinder -->
+      <material name="orange"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.04" length="0.25"/>
+      </geometry>
+      <origin xyz="0 0 -0.125" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <!-- Left Shoulder Joint: Allows arm to swing forward/backward -->
+  <joint name="left_shoulder_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="left_upper_arm"/>
+    <origin xyz="0.2 0 0.45" rpy="0 0 0"/>  <!-- Left side of torso, near top -->
+    <axis xyz="0 1 0"/>  <!-- Rotation around Y axis (arm swing) -->
+    <limit lower="-3.14" upper="3.14" effort="20" velocity="2.0"/>
+  </joint>
+
+  <!-- Left Lower Arm (Forearm) -->
+  <link name="left_lower_arm">
+    <visual>
+      <geometry>
+        <cylinder radius="0.035" length="0.22"/>
+      </geometry>
+      <origin xyz="0 0 -0.11" rpy="0 0 0"/>
+      <material name="orange"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.035" length="0.22"/>
+      </geometry>
+      <origin xyz="0 0 -0.11" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.003" ixy="0" ixz="0" iyy="0.003" iyz="0" izz="0.0005"/>
+    </inertial>
+  </link>
+
+  <!-- Left Elbow Joint: Allows forearm to bend -->
+  <joint name="left_elbow_joint" type="revolute">
+    <parent link="left_upper_arm"/>
+    <child link="left_lower_arm"/>
+    <origin xyz="0 0 -0.25" rpy="0 0 0"/>  <!-- End of upper arm -->
+    <axis xyz="0 1 0"/>  <!-- Rotation around Y axis (elbow bend) -->
+    <limit lower="0" upper="2.5" effort="15" velocity="2.0"/>  <!-- Elbow only bends one way -->
+  </joint>
+
+  <!-- ==================== RIGHT ARM ==================== -->
+  <!--
+    Mirror of the left arm structure.
+    Same joint types and limits, just positioned on the right side.
+  -->
+
+  <!-- Right Upper Arm -->
+  <link name="right_upper_arm">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.25"/>
+      </geometry>
+      <origin xyz="0 0 -0.125" rpy="0 0 0"/>
+      <material name="orange"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.04" length="0.25"/>
+      </geometry>
+      <origin xyz="0 0 -0.125" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <!-- Right Shoulder Joint -->
+  <joint name="right_shoulder_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="right_upper_arm"/>
+    <origin xyz="-0.2 0 0.45" rpy="0 0 0"/>  <!-- Right side (negative X) -->
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="20" velocity="2.0"/>
+  </joint>
+
+  <!-- Right Lower Arm (Forearm) -->
+  <link name="right_lower_arm">
+    <visual>
+      <geometry>
+        <cylinder radius="0.035" length="0.22"/>
+      </geometry>
+      <origin xyz="0 0 -0.11" rpy="0 0 0"/>
+      <material name="orange"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.035" length="0.22"/>
+      </geometry>
+      <origin xyz="0 0 -0.11" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.003" ixy="0" ixz="0" iyy="0.003" iyz="0" izz="0.0005"/>
+    </inertial>
+  </link>
+
+  <!-- Right Elbow Joint -->
+  <joint name="right_elbow_joint" type="revolute">
+    <parent link="right_upper_arm"/>
+    <child link="right_lower_arm"/>
+    <origin xyz="0 0 -0.25" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="2.5" effort="15" velocity="2.0"/>
+  </joint>
+
+</robot>
+
+<!--
+URDF Structure Summary
+======================
+
+Links (7 total):
+  1. base_link (torso)
+  2. head
+  3. left_upper_arm
+  4. left_lower_arm
+  5. right_upper_arm
+  6. right_lower_arm
+
+Joints (6 total - 6 DOF):
+  1. neck_joint (revolute) - head rotation
+  2. left_shoulder_joint (revolute) - left arm swing
+  3. left_elbow_joint (revolute) - left arm bend
+  4. right_shoulder_joint (revolute) - right arm swing
+  5. right_elbow_joint (revolute) - right arm bend
+
+Connection to ROS 2:
+- robot_state_publisher reads this URDF
+- It publishes transforms (TF) based on joint states
+- Joint positions come from /joint_states topic
+- Visualization tools (RViz) use TF to display the robot
+
+This is how the "skeleton" connects to the "nervous system"!
+-->

@@ -1,0 +1,92 @@
+# LiDAR Sensor Configuration for Humanoid Robots
+# This YAML file documents typical LiDAR parameters for Gazebo simulation
+#
+# Usage: Reference these values when configuring your URDF/SDF LiDAR sensor
+# The actual configuration goes in XML format within your robot description
+
+# Sensor identification
+sensor:
+  name: "head_lidar"
+  type: "gpu_lidar"
+  parent_link: "head_link"
+
+# Position relative to parent link
+pose:
+  x: 0.0        # Forward (meters)
+  y: 0.0        # Left (meters)
+  z: 0.1        # Up (meters)
+  roll: 0.0     # Rotation around X (radians)
+  pitch: 0.0    # Rotation around Y (radians)
+  yaw: 0.0      # Rotation around Z (radians)
+
+# Scan configuration
+scan:
+  horizontal:
+    samples: 640              # Number of horizontal beams
+    resolution: 1             # Angular resolution multiplier
+    min_angle: -1.5708        # -90 degrees in radians
+    max_angle: 1.5708         # +90 degrees in radians
+    # For 360° coverage: min_angle: -3.14159, max_angle: 3.14159
+
+  vertical:
+    samples: 1                # 1 = 2D LiDAR, >1 = 3D LiDAR
+    resolution: 1
+    min_angle: 0.0
+    max_angle: 0.0
+    # For 3D LiDAR example (16 channels):
+    # samples: 16
+    # min_angle: -0.2618  # -15 degrees
+    # max_angle: 0.2618   # +15 degrees
+
+# Range configuration
+range:
+  min: 0.1                    # Minimum detection distance (meters)
+  max: 30.0                   # Maximum detection distance (meters)
+  resolution: 0.01            # Distance measurement resolution (meters)
+
+# Noise model (Gaussian)
+noise:
+  type: "gaussian"
+  mean: 0.0                   # Typically 0 for unbiased sensors
+  stddev: 0.01                # Standard deviation in meters
+  # Typical real-world values:
+  # - High-end LiDAR (Velodyne): 0.01 - 0.02 m
+  # - Mid-range LiDAR: 0.02 - 0.03 m
+  # - Low-cost LiDAR: 0.03 - 0.05 m
+
+# Update rate
+update_rate: 10               # Hz (scans per second)
+# Common values:
+# - Navigation: 10-20 Hz
+# - SLAM: 20-40 Hz
+# - High-speed applications: 40+ Hz
+
+# Gazebo-specific settings
+gazebo:
+  always_on: true
+  visualize: true             # Show laser beams in Gazebo GUI
+  topic: "scan"               # Gazebo transport topic name
+
+# ROS 2 bridge configuration
+ros2_bridge:
+  topic: "/scan"
+  message_type: "sensor_msgs/msg/LaserScan"
+  # Bridge command:
+  # ros2 run ros_gz_bridge parameter_bridge /scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan
+
+# Example use cases for humanoid robots
+use_cases:
+  navigation:
+    description: "Obstacle avoidance and path planning"
+    recommended_samples: 720    # 0.5° resolution for 360°
+    recommended_range_max: 10.0 # Indoor environments
+
+  slam:
+    description: "Simultaneous Localization and Mapping"
+    recommended_samples: 1080   # 0.33° resolution
+    recommended_update_rate: 20 # Hz
+
+  safety:
+    description: "Emergency stop and collision prevention"
+    recommended_update_rate: 40 # Hz for fast response
+    recommended_range_max: 5.0  # Close-range focus

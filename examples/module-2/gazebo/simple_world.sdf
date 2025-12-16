@@ -1,0 +1,135 @@
+<?xml version="1.0" ?>
+<!--
+  Simple World for Humanoid Robot Testing
+
+  This world provides a basic environment for testing humanoid robots in Gazebo.
+  Features:
+  - DART physics engine configured for humanoid simulation
+  - Ground plane with appropriate friction
+  - Directional lighting
+
+  Usage:
+    gz sim simple_world.sdf
+
+  Or with ROS 2:
+    ros2 launch ros_gz_sim gz_sim.launch.py gz_args:="simple_world.sdf"
+-->
+<sdf version="1.8">
+  <world name="simple_world">
+
+    <!-- Physics Configuration -->
+    <!-- DART is recommended for humanoid robots due to better contact handling -->
+    <physics name="humanoid_physics" type="dart">
+      <max_step_size>0.001</max_step_size>      <!-- 1ms timestep for stability -->
+      <real_time_factor>1.0</real_time_factor>  <!-- 1.0 = real-time -->
+      <real_time_update_rate>1000</real_time_update_rate>
+      <gravity>0 0 -9.81</gravity>              <!-- Earth gravity -->
+    </physics>
+
+    <!-- Scene Configuration -->
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Sun Light -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Ground Plane -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.8</mu>       <!-- High friction for stable walking -->
+                <mu2>0.8</mu2>
+              </ode>
+            </friction>
+            <contact>
+              <ode>
+                <kp>1e6</kp>       <!-- Contact stiffness -->
+                <kd>100</kd>       <!-- Contact damping -->
+              </ode>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Optional: Box Obstacle for Testing -->
+    <model name="box_obstacle">
+      <pose>3 0 0.25 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <mass>5.0</mass>
+          <inertia>
+            <ixx>0.21</ixx>
+            <iyy>0.21</iyy>
+            <izz>0.21</izz>
+          </inertia>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 0.5 0.5</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 0.5 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.3 0.3 0.8 1</ambient>
+            <diffuse>0.3 0.3 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
