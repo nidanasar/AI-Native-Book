@@ -21,6 +21,7 @@ Implement a single-file Python backend (`main.py`) that crawls the deployed Docu
 **Scale/Scope**: ~50-100 textbook pages, estimated <1GB vectors
 
 **Deployed Site**: `ai-native-book-1fj5bdpkr-nida-nasars-projects.vercel.app`
+**Sitemap URL**: ai-native-book-1fj5bdpkr-nida-nasars-projects.vercel.app/sitemap.xml
 
 ## Constitution Check
 
