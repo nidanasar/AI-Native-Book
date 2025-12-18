@@ -1,0 +1,176 @@
+openapi: 3.1.0
+info:
+  title: RAG API
+  description: RAG endpoint for Physical AI & Humanoid Robotics textbook Q&A
+  version: 1.0.0
+  contact:
+    name: AI-Native Textbook Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /rag/query:
+    post:
+      summary: Query the RAG system
+      description: |
+        Submit a natural language question and receive an AI-generated answer
+        grounded in the textbook content, along with the source context chunks.
+      operationId: queryRag
+      tags:
+        - RAG
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RagQueryRequest'
+            examples:
+              basic:
+                summary: Basic question
+                value:
+                  question: "What is ROS 2?"
+              withTopK:
+                summary: Question with custom top_k
+                value:
+                  question: "How do humanoid robots maintain balance?"
+                  top_k: 3
+      responses:
+        '200':
+          description: Successful response with answer and context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RagQueryResponse'
+              example:
+                answer: "ROS 2 (Robot Operating System 2) is an open-source robotics middleware..."
+                context_chunks:
+                  - text: "ROS 2 is the next generation of the Robot Operating System..."
+                    url: "https://example.com/docs/module-1-ros2/chapter-1"
+                    title: "Introduction to ROS 2"
+                    chunk_index: 0
+                    score: 0.92
+                metadata:
+                  used_top_k: 5
+                  model_name: "gpt-3.5-turbo"
+        '400':
+          description: Invalid request (empty question or invalid parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Question is required and must not be empty"
+        '503':
+          description: Service unavailable (LLM or retrieval failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "LLM service unavailable"
+
+components:
+  schemas:
+    RagQueryRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Natural language question about the textbook content
+          example: "What is ROS 2?"
+        top_k:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 5
+          description: Number of context chunks to retrieve
+          example: 5
+
+    RagQueryResponse:
+      type: object
+      required:
+        - answer
+        - context_chunks
+        - metadata
+      properties:
+        answer:
+          type: string
+          description: AI-generated answer grounded in retrieved context
+          example: "ROS 2 is the next generation of the Robot Operating System..."
+        context_chunks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextChunk'
+          description: Retrieved chunks used as context for answer generation
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    ContextChunk:
+      type: object
+      required:
+        - text
+        - url
+        - title
+        - chunk_index
+        - score
+      properties:
+        text:
+          type: string
+          description: Text content of the chunk
+          example: "ROS 2 is the next generation of the Robot Operating System..."
+        url:
+          type: string
+          format: uri
+          description: Source URL of the original document
+          example: "https://example.com/docs/module-1-ros2/chapter-1"
+        title:
+          type: string
+          description: Title of the source page
+          example: "Introduction to ROS 2"
+        chunk_index:
+          type: integer
+          minimum: 0
+          description: Index of this chunk within the source document
+          example: 0
+        score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Relevance score (higher = more relevant)
+          example: 0.92
+
+    ResponseMetadata:
+      type: object
+      required:
+        - used_top_k
+        - model_name
+      properties:
+        used_top_k:
+          type: integer
+          description: Actual number of chunks retrieved
+          example: 5
+        model_name:
+          type: string
+          description: LLM model used for answer generation
+          example: "gpt-3.5-turbo"
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Question is required and must not be empty"
+
+tags:
+  - name: RAG
+    description: Retrieval-Augmented Generation endpoints
