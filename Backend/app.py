@@ -7,6 +7,7 @@ using retrieval-augmented generation.
 
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import router
 
@@ -21,6 +22,15 @@ app = FastAPI(
     title="RAG API",
     description="RAG endpoint for Physical AI & Humanoid Robotics textbook Q&A",
     version="1.0.0"
+)
+
+# Add CORS middleware to allow requests from the frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include RAG router

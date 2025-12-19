@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+cohere
+qdrant-client
+httpx
+pydantic
+python-dotenv
+openai

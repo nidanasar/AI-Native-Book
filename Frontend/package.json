@@ -5,7 +5,9 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
+    "start:rag": "RAG_API_BASE_URL=http://localhost:8000 docusaurus start",
     "build": "docusaurus build",
+    "build:rag": "RAG_API_BASE_URL=http://localhost:8000 docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",

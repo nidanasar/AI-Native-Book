@@ -9,6 +9,31 @@ const config: Config = {
   tagline: 'Dinosaurs are cool',
   favicon: 'img/favicon.ico',
 
+  plugins: [
+    // Plugin to inject custom configuration for RAG UI
+    () => ({
+      name: 'inject-rag-config',
+      injectHtmlTags({content}) {
+        // Get the API URL from environment variable during build
+        const apiUrl = process.env.RAG_API_BASE_URL || 'http://localhost:8000';
+        return {
+          headTags: [
+            {
+              tagName: 'script',
+              innerHTML: `
+                window.RAG_CONFIG = {
+                  API_BASE_URL: '${apiUrl}'
+                };
+              `,
+            },
+          ],
+        };
+      },
+    }),
+    // Plugin to add the floating RAG UI to all pages
+    './src/plugins/docusaurus-plugin-floating-rag-ui',
+  ],
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
@@ -66,6 +91,31 @@ const config: Config = {
         },
       } satisfies Preset.Options,
     ],
+  ],
+
+  plugins: [
+    // Plugin to inject custom configuration for RAG UI
+    () => ({
+      name: 'inject-rag-config',
+      injectHtmlTags({content}) {
+        // Get the API URL from environment variable during build
+        const apiUrl = process.env.RAG_API_BASE_URL || 'http://localhost:8000';
+        return {
+          headTags: [
+            {
+              tagName: 'script',
+              innerHTML: `
+                window.RAG_CONFIG = {
+                  API_BASE_URL: '${apiUrl}'
+                };
+              `,
+            },
+          ],
+        };
+      },
+    }),
+    // Plugin to add the floating RAG UI to all pages
+    './src/plugins/docusaurus-plugin-floating-rag-ui',
   ],
 
   themeConfig: {
