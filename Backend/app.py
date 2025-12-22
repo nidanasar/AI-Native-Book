@@ -8,6 +8,9 @@ using retrieval-augmented generation.
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+import os
 
 from api.routes import router
 
@@ -35,6 +38,24 @@ app.add_middleware(
 
 # Include RAG router
 app.include_router(router)
+
+# Serve static files (frontend build) if they exist
+frontend_build_path = os.path.join(os.path.dirname(__file__), "..", "Frontend", "build")
+if os.path.exists(frontend_build_path):
+    app.mount("/", StaticFiles(directory=frontend_build_path, html=True), name="frontend")
+
+
+@app.get("/")
+def root():
+    """Root endpoint with API info."""
+    return {
+        "message": "RAG API for Physical AI & Humanoid Robotics Textbook",
+        "docs": "/docs",
+        "health": "/health",
+        "endpoints": {
+            "query": "POST /rag/query"
+        }
+    }
 
 
 @app.get("/health")

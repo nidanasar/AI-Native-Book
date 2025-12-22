@@ -88,6 +88,16 @@ class IngestionResult:
     duration_ms: int
 
 
+@dataclass
+class RetrievedChunk:
+    """A chunk retrieved from vector search."""
+    text: str
+    url: str
+    title: str
+    chunk_index: int
+    score: float
+
+
 # -----------------------------------------------------------------------------
 # Utility Functions
 # -----------------------------------------------------------------------------
@@ -310,6 +320,98 @@ def generate_embeddings(chunks: list[str], cohere_client: cohere.Client) -> list
     )
 
     return response.embeddings
+
+
+def retrieve_chunks(
+    query: str,
+    cohere_client: cohere.Client,
+    qdrant_client: QdrantClient,
+    top_k: int = 5
+) -> list[RetrievedChunk]:
+    """Retrieve relevant chunks from Qdrant for a query.
+
+    Args:
+        query: Search query text
+        cohere_client: Initialized Cohere client
+        qdrant_client: Initialized Qdrant client
+        top_k: Number of results to return
+
+    Returns:
+        List of RetrievedChunk with text, metadata and scores
+    """
+    logger.info(f"Retrieving chunks for query: {query[:50]}...")
+
+    # Generate query embedding
+    response = cohere_client.embed(
+        texts=[query],
+        model=EMBEDDING_MODEL,
+        input_type="search_query"
+    )
+    query_embedding = response.embeddings[0]
+
+    # Search Qdrant - handle potential API differences
+    if hasattr(qdrant_client, 'query_points'):
+        # Newer qdrant-client API uses query_points
+        search_results = qdrant_client.query_points(
+            collection_name=COLLECTION_NAME,
+            query=query_embedding,
+            limit=top_k
+        )
+        results = search_results.points
+    elif hasattr(qdrant_client, 'search'):
+        # Older qdrant-client API
+        search_results = qdrant_client.search(
+            collection_name=COLLECTION_NAME,
+            query_vector=query_embedding,
+            limit=top_k
+        )
+        results = search_results
+    elif hasattr(qdrant_client, 'search_points'):
+        # Alternative method name in some versions
+        search_results = qdrant_client.search_points(
+            collection_name=COLLECTION_NAME,
+            query_vector=query_embedding,
+            limit=top_k
+        )
+        results = search_results
+    else:
+        raise AttributeError(f"QdrantClient does not have 'query_points', 'search', or 'search_points' method. Available methods: {[method for method in dir(qdrant_client) if not method.startswith('_')]}")
+
+    # Convert to RetrievedChunk objects
+    chunks = []
+    for result in results:
+        # Handle different result formats depending on qdrant-client version
+        if hasattr(result, 'payload') and hasattr(result, 'score'):
+            # Format from query_points or search methods
+            chunks.append(RetrievedChunk(
+                text=result.payload.get("text", ""),
+                url=result.payload.get("url", ""),
+                title=result.payload.get("title", ""),
+                chunk_index=result.payload.get("chunk_index", 0),
+                score=getattr(result, 'score', getattr(result, 'relevance_score', 0))
+            ))
+        elif hasattr(result, 'document'):
+            # Alternative format - extract from document field
+            payload = getattr(result, 'document', {})
+            chunks.append(RetrievedChunk(
+                text=payload.get("text", "") if isinstance(payload, dict) else getattr(result, 'text', ""),
+                url=payload.get("url", "") if isinstance(payload, dict) else getattr(result, 'url', ""),
+                title=payload.get("title", "") if isinstance(payload, dict) else getattr(result, 'title', ""),
+                chunk_index=payload.get("chunk_index", 0) if isinstance(payload, dict) else getattr(result, 'chunk_index', 0),
+                score=getattr(result, 'score', getattr(result, 'relevance_score', 0))
+            ))
+        else:
+            # Fallback: try to access attributes directly
+            chunks.append(RetrievedChunk(
+                text=getattr(result, 'text', getattr(result, 'payload', {}).get("text", "")),
+                url=getattr(result, 'url', getattr(result, 'payload', {}).get("url", "")),
+                title=getattr(result, 'title', getattr(result, 'payload', {}).get("title", "")),
+                chunk_index=getattr(result, 'chunk_index', getattr(result, 'payload', {}).get("chunk_index", 0)),
+                score=getattr(result, 'score', getattr(result, 'relevance_score', 0))
+            ))
+
+    logger.info(f"Retrieved {len(chunks)} chunks")
+    return chunks
 
 
 # -----------------------------------------------------------------------------

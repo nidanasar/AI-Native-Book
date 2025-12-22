@@ -4,5 +4,8 @@ cohere
 qdrant-client
 httpx
 pydantic
+pydantic-settings
 python-dotenv
 openai
+beautifulsoup4
+tenacity

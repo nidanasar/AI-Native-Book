@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'ROS2 Fundamentals',
+    Svg: require('@site/static/img/ros2-nodes.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Learn how ROS2 acts as a robot&apos;s nervous system. Master nodes, topics,
+        services, and URDF modeling for humanoid robots with Python integration.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Digital Twin Simulation',
+    Svg: require('@site/static/img/digital-twin.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Build virtual replicas of your robot for safe testing. Master physics
+        simulation with Gazebo, sensor integration, and Unity visualization.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'AI Learning Assistant',
+    Svg: require('@site/static/img/ai-assistant.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Get instant help from our RAG-powered AI assistant. Ask questions about
+        any topic and receive contextual answers from the textbook content.
       </>
     ),
   },

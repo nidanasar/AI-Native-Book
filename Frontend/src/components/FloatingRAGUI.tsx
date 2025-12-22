@@ -11,7 +11,7 @@ declare global {
 }
 
 const CONFIG = {
-  API_BASE_URL: window.RAG_CONFIG?.API_BASE_URL || 'http://localhost:8000',
+  API_BASE_URL: "https://nidanasar123-rag-chatbot.hf.space",
   DEFAULT_TOP_K: 5,
   MAX_CHAT_HISTORY: 20
 };

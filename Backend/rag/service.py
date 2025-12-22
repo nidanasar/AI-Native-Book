@@ -25,7 +25,9 @@ logger = logging.getLogger(__name__)
 SYSTEM_PROMPT = """You are a helpful assistant for the Physical AI & Humanoid Robotics textbook.
 Answer the user's question based ONLY on the provided context from the textbook.
 If the context doesn't contain relevant information to answer the question, say so clearly.
-Be concise but thorough. Cite specific information from the context when possible."""
+Be concise but thorough. Cite specific information from the context when possible.
+For greetings like 'hi', 'hello', 'hey', etc., respond warmly and offer to help with questions about Physical AI & Humanoid Robotics.
+For expressions of gratitude like 'thank you', 'thanks', etc., respond politely and encourage further questions."""
 
 CONTEXT_TEMPLATE = """Context from the textbook:
 

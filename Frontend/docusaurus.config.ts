@@ -5,34 +5,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'Physical AI & Humanoid Robotics',
+  tagline: 'Master ROS2, Digital Twins, and Simulation for Humanoid Robots',
   favicon: 'img/favicon.ico',
-
-  plugins: [
-    // Plugin to inject custom configuration for RAG UI
-    () => ({
-      name: 'inject-rag-config',
-      injectHtmlTags({content}) {
-        // Get the API URL from environment variable during build
-        const apiUrl = process.env.RAG_API_BASE_URL || 'http://localhost:8000';
-        return {
-          headTags: [
-            {
-              tagName: 'script',
-              innerHTML: `
-                window.RAG_CONFIG = {
-                  API_BASE_URL: '${apiUrl}'
-                };
-              `,
-            },
-          ],
-        };
-      },
-    }),
-    // Plugin to add the floating RAG UI to all pages
-    './src/plugins/docusaurus-plugin-floating-rag-ui',
-  ],
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -99,7 +74,7 @@ const config: Config = {
       name: 'inject-rag-config',
       injectHtmlTags({content}) {
         // Get the API URL from environment variable during build
-        const apiUrl = process.env.RAG_API_BASE_URL || 'http://localhost:8000';
+        const apiUrl = process.env.RAG_API_BASE_URL || 'https://nidanasar123-rag-chatbot.hf.space';
         return {
           headTags: [
             {
@@ -125,9 +100,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'My Site',
+      title: 'Physical AI',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Physical AI & Humanoid Robotics Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -135,42 +110,41 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Modules',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
-        {
-          href: 'https://github.com/facebook/docusaurus',
-          label: 'GitHub',
-          position: 'right',
-        },
       ],
     },
     footer: {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Learn',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Introduction',
               to: '/docs/intro',
+            },
+            {
+              label: 'ROS2 Fundamentals',
+              to: '/docs/module-1-ros2/01-introduction-ros2',
+            },
+            {
+              label: 'Digital Twins',
+              to: '/docs/module-2-digital-twin/01-introduction-digital-twins',
             },
           ],
         },
         {
-          title: 'Community',
+          title: 'Resources',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'ROS2 Documentation',
+              href: 'https://docs.ros.org/en/humble/',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
+              label: 'Gazebo Sim',
+              href: 'https://gazebosim.org/',
             },
           ],
         },
@@ -181,14 +155,10 @@ const config: Config = {
               label: 'Blog',
               to: '/blog',
             },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
-            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Physical AI & Humanoid Robotics Textbook. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
