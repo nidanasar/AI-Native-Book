@@ -2,29 +2,30 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import FloatingRAGUI from '@site/src/components/FloatingRAGUI';
 
-// Create a container for the floating RAG UI
-function injectFloatingRAGUI() {
-  // Create a container div
-  const container = document.createElement('div');
-  container.id = 'floating-rag-ui-container';
-  document.body.appendChild(container);
+// Only run in browser environment (not during SSR)
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  // Create a container for the floating RAG UI
+  function injectFloatingRAGUI() {
+    // Create a container div
+    const container = document.createElement('div');
+    container.id = 'floating-rag-ui-container';
+    document.body.appendChild(container);
 
-  // Render the FloatingRAGUI component into the container using the new React 18 API
-  const root = createRoot(container);
-  root.render(<FloatingRAGUI />);
-}
+    // Render the FloatingRAGUI component into the container using the new React 18 API
+    const root = createRoot(container);
+    root.render(<FloatingRAGUI />);
+  }
 
-// Wait for the DOM to be fully loaded before injecting the component
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', injectFloatingRAGUI);
-} else {
-  // DOM is already ready, inject immediately
-  injectFloatingRAGUI();
-}
+  // Wait for the DOM to be fully loaded before injecting the component
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectFloatingRAGUI);
+  } else {
+    // DOM is already ready, inject immediately
+    injectFloatingRAGUI();
+  }
 
-// For SPA navigation (client-side routing in Docusaurus)
-// Re-inject when route changes
-if (typeof window !== 'undefined') {
+  // For SPA navigation (client-side routing in Docusaurus)
+  // Re-inject when route changes
   let observer;
 
   // Function to initialize when page content changes
