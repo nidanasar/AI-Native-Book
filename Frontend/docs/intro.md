@@ -75,5 +75,5 @@ Simply click the chat icon and type your question!
 ---
 
 :::tip Ready to Begin?
-Start your journey with [Chapter 1: Introduction to ROS2](/docs/module-1-ros2/01-introduction-ros2) to learn how robots communicate and coordinate their actions.
+Start your journey with [Chapter 1: Introduction to ROS2](/docs/module-1-ros2/introduction-ros2) to learn how robots communicate and coordinate their actions.
 :::
