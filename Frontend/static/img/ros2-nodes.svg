@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <circle cx="100" cy="50" r="25" fill="#3498db" stroke="#2980b9" stroke-width="3"/>
+  <circle cx="50" cy="150" r="25" fill="#2ecc71" stroke="#27ae60" stroke-width="3"/>
+  <circle cx="150" cy="150" r="25" fill="#e74c3c" stroke="#c0392b" stroke-width="3"/>
+  <line x1="100" y1="75" x2="50" y2="125" stroke="#34495e" stroke-width="3"/>
+  <line x1="100" y1="75" x2="150" y2="125" stroke="#34495e" stroke-width="3"/>
+  <line x1="75" y1="150" x2="125" y2="150" stroke="#34495e" stroke-width="3"/>
+  <text x="100" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Node</text>
+  <text x="50" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Pub</text>
+  <text x="150" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Sub</text>
+</svg>

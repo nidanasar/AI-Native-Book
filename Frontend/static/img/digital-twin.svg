@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Physical robot -->
+  <rect x="20" y="60" width="60" height="80" rx="5" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+  <circle cx="35" cy="80" r="8" fill="#ecf0f1"/>
+  <circle cx="65" cy="80" r="8" fill="#ecf0f1"/>
+  <rect x="35" y="100" width="30" height="5" rx="2" fill="#ecf0f1"/>
+  <rect x="30" y="140" width="15" height="20" rx="2" fill="#2980b9"/>
+  <rect x="55" y="140" width="15" height="20" rx="2" fill="#2980b9"/>
+
+  <!-- Connection arrows -->
+  <path d="M90 100 L110 100" stroke="#9b59b6" stroke-width="3" stroke-dasharray="5,3"/>
+  <polygon points="110,95 120,100 110,105" fill="#9b59b6"/>
+
+  <!-- Digital twin -->
+  <rect x="120" y="60" width="60" height="80" rx="5" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+  <circle cx="135" cy="80" r="8" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="3,2"/>
+  <circle cx="165" cy="80" r="8" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="3,2"/>
+  <rect x="135" y="100" width="30" height="5" rx="2" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="3,2"/>
+  <rect x="130" y="140" width="15" height="20" rx="2" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="3,2"/>
+  <rect x="155" y="140" width="15" height="20" rx="2" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="3,2"/>
+
+  <!-- Labels -->
+  <text x="50" y="180" text-anchor="middle" fill="#2c3e50" font-size="10" font-weight="bold">Physical</text>
+  <text x="150" y="180" text-anchor="middle" fill="#9b59b6" font-size="10" font-weight="bold">Digital Twin</text>
+</svg>

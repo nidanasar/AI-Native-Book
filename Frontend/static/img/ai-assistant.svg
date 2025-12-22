@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Chat bubble -->
+  <path d="M30 40 L170 40 Q180 40 180 50 L180 130 Q180 140 170 140 L110 140 L90 165 L90 140 L30 140 Q20 140 20 130 L20 50 Q20 40 30 40 Z" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+
+  <!-- AI brain icon -->
+  <circle cx="100" cy="85" r="35" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+  <path d="M80 75 Q85 65 100 65 Q115 65 120 75" stroke="#9b59b6" stroke-width="3" fill="none"/>
+  <path d="M80 85 Q90 95 100 85 Q110 95 120 85" stroke="#9b59b6" stroke-width="3" fill="none"/>
+  <path d="M85 95 Q95 105 100 95 Q105 105 115 95" stroke="#9b59b6" stroke-width="3" fill="none"/>
+
+  <!-- Neural dots -->
+  <circle cx="75" cy="80" r="4" fill="#e74c3c"/>
+  <circle cx="125" cy="80" r="4" fill="#e74c3c"/>
+  <circle cx="100" cy="105" r="4" fill="#e74c3c"/>
+  <circle cx="85" cy="70" r="3" fill="#f39c12"/>
+  <circle cx="115" cy="70" r="3" fill="#f39c12"/>
+</svg>
