@@ -127,11 +127,11 @@ const config: Config = {
             },
             {
               label: 'ROS2 Fundamentals',
-              to: '/docs/module-1-ros2/01-introduction-ros2',
+              to: '/docs/module-1-ros2/introduction-ros2',
             },
             {
               label: 'Digital Twins',
-              to: '/docs/module-2-digital-twin/01-introduction-digital-twins',
+              to: '/docs/module-2-digital-twin/introduction-digital-twins',
             },
           ],
         },
