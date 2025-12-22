@@ -1,0 +1,10 @@
+{
+  "name": "ai-native-book",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd Frontend && npm install && npm run build",
+    "start": "cd Frontend && npm start",
+    "install": "cd Frontend && npm install"
+  }
+}
