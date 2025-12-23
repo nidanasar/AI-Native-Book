@@ -42,7 +42,6 @@ interface ChatHistoryItem {
 const FloatingRAGUI: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [question, setQuestion] = useState<string>('');
-  const [topK, setTopK] = useState<number>(CONFIG.DEFAULT_TOP_K);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [answer, setAnswer] = useState<string>('');
@@ -58,10 +57,11 @@ const FloatingRAGUI: React.FC = () => {
     }
   };
 
-  // Call RAG API with timeout
-  const callRagAPI = async (questionText: string, topKValue: number) => {
+  // Call RAG API with timeout and retry logic for cold starts
+  const callRagAPI = async (questionText: string, topKValue: number, retryCount = 0): Promise<RAGResponse> => {
+    const MAX_RETRIES = 3;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for cold starts
 
     try {
       const response = await fetch(`${CONFIG.API_BASE_URL}/rag/query`, {
@@ -79,6 +79,18 @@ const FloatingRAGUI: React.FC = () => {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Handle 503 (Service Unavailable) - common during Hugging Face cold starts
+        if (response.status === 503 && retryCount < MAX_RETRIES) {
+          const waitTime = Math.pow(2, retryCount) * 2000; // Exponential backoff: 2s, 4s, 8s
+          setError(`Server is waking up... Retrying in ${waitTime / 1000}s (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          return callRagAPI(questionText, topKValue, retryCount + 1);
+        }
+
+        if (response.status === 503) {
+          throw new Error('Backend server is starting up. Please wait 30-60 seconds and try again. Hugging Face Spaces sleep when inactive.');
+        }
+
         throw new Error(`API request failed with status ${response.status}`);
       }
 
@@ -89,7 +101,7 @@ const FloatingRAGUI: React.FC = () => {
 
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
-          throw new Error('Request timed out. The query took too long to complete.');
+          throw new Error('Request timed out. The server might be waking up from sleep. Please try again in 30-60 seconds.');
         } else {
           throw err;
         }
@@ -111,7 +123,7 @@ const FloatingRAGUI: React.FC = () => {
     setAnswer('');
 
     try {
-      const data = await callRagAPI(question, topK);
+      const data = await callRagAPI(question, CONFIG.DEFAULT_TOP_K);
 
       // Add to chat history
       const newHistoryItem: ChatHistoryItem = {
@@ -141,9 +153,10 @@ const FloatingRAGUI: React.FC = () => {
     setAnswer('');
   };
 
-  // Handle Enter key for submission
+  // Handle Enter key for submission (Enter = submit, Shift+Enter = new line)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleSubmit(e as any);
     }
   };
@@ -184,24 +197,10 @@ const FloatingRAGUI: React.FC = () => {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about Physical AI & Humanoid Robotics... (Ctrl+Enter to submit)"
+                placeholder="Ask about Physical AI & Humanoid Robotics... (Enter to submit, Shift+Enter for new line)"
                 rows={3}
                 disabled={isLoading}
               />
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="floating-topK">Context Chunks (top_k):</label>
-              <select
-                id="floating-topK"
-                value={topK}
-                onChange={(e) => setTopK(Number(e.target.value))}
-                disabled={isLoading}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                  <option key={num} value={num}>{num}</option>
-                ))}
-              </select>
             </div>
 
             <button type="submit" disabled={isLoading} className="submit-btn">
